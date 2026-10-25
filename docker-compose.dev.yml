@@ -1,0 +1,16 @@
+services:
+  forgejo:
+    image: ghcr.io/gitlgbt/forgejo:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__DEFAULT__RUN_MODE=dev
+      - GITEA__database__DB_TYPE=sqlite3
+      - GITEA__server__ROOT_URL=http://localhost:3001/
+    volumes:
+      - ./.dev:/data                      
+      - ./public:/data/gitea/public
+      - ./templates:/data/gitea/templates      
+      - ./options:/data/gitea/options

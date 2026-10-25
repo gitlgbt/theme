@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<svg
+   width="800"
+   height="800"
+   viewBox="0 0 256 256"
+   preserveAspectRatio="xMinYMin"
+   version="1.1"
+   id="svg1"
+   xml:space="preserve"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+     id="defs1"><linearGradient
+       id="linearGradient1"><stop
+         style="stop-color:#e78284;stop-opacity:1;"
+         offset="0"
+         id="stop1" /><stop
+         style="stop-color:#ef9f76;stop-opacity:1;"
+         offset="0.2"
+         id="stop3" /><stop
+         style="stop-color:#e6c890;stop-opacity:1"
+         offset="0.40000001"
+         id="stop4" /><stop
+         style="stop-color:#a6d28a;stop-opacity:1"
+         offset="0.60000002"
+         id="stop5" /><stop
+         style="stop-color:#99d1dc;stop-opacity:1;"
+         offset="0.80000001"
+         id="stop6" /><stop
+         style="stop-color:#ca9ee6;stop-opacity:1;"
+         offset="1"
+         id="stop2" /></linearGradient><linearGradient
+       xlink:href="#linearGradient1"
+       id="linearGradient2"
+       x1="65.485977"
+       y1="196.15407"
+       x2="195.38048"
+       y2="66.259575"
+       gradientUnits="userSpaceOnUse" /></defs><path
+     d="M 251.172,116.594 139.4,4.828 c -6.433,-6.437 -16.873,-6.437 -23.314,0 l -23.21,23.21 29.443,29.443 c 6.842,-2.312 14.688,-0.761 20.142,4.693 5.48,5.489 7.02,13.402 4.652,20.266 l 28.375,28.376 c 6.865,-2.365 14.786,-0.835 20.269,4.657 7.663,7.66 7.663,20.075 0,27.74 -7.665,7.666 -20.08,7.666 -27.749,0 -5.764,-5.77 -7.188,-14.235 -4.27,-21.336 l -26.462,-26.462 -0.003,69.637 a 19.82,19.82 0 0 1 5.188,3.71 c 7.663,7.66 7.663,20.076 0,27.747 -7.665,7.662 -20.086,7.662 -27.74,0 -7.663,-7.671 -7.663,-20.086 0,-27.746 a 19.654,19.654 0 0 1 6.421,-4.281 V 94.196 a 19.378,19.378 0 0 1 -6.421,-4.281 c -5.806,-5.798 -7.202,-14.317 -4.227,-21.446 L 81.47,39.442 4.83,116.077 c -6.44,6.443 -6.44,16.884 0,23.322 l 111.774,111.768 c 6.435,6.438 16.873,6.438 23.316,0 L 251.171,139.918 c 6.438,-6.44 6.438,-16.887 0,-23.324"
+     fill="#DE4C36"
+     id="path1"
+     style="fill:url(#linearGradient2)" /></svg>

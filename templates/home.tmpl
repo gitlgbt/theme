@@ -1,0 +1,31 @@
+{{template "base/head" .}}
+<style>
+	.gitlgbt-wip {
+		min-height: 55vh;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 1.5rem;
+		padding: 3rem 1.5rem;
+		text-align: center;
+	}
+	.gitlgbt-wip img {
+		width: 9rem;
+		height: auto;
+	}
+	.gitlgbt-wip h1 {
+		margin: 0;
+		font-size: clamp(1.6rem, 4vw, 2.25rem);
+		font-weight: 700;
+		color: var(--color-text);
+	}
+</style>
+
+<div role="main" aria-label="{{.Title}}" class="page-content home">
+	<div class="gitlgbt-wip">
+		<img src="{{AssetUrlPrefix}}/img/logo.svg" alt="{{AppName}}">
+		<h1>well this is in todo list then</h1>
+	</div>
+</div>
+{{template "base/footer" .}}

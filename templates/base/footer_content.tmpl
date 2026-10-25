@@ -1,0 +1,187 @@
+<style>
+    .page-footer .footer-grid {
+        display: grid;
+        grid-template-columns: 1.5fr repeat(3, 1fr);
+        gap: 2rem;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 1rem 1rem;
+        text-align: left;
+    }
+    .page-footer .footer-brand .brand-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--color-text);
+    }
+    .page-footer .footer-brand .brand-link img {
+        height: 2rem;
+        width: auto;
+    }
+    .page-footer .footer-brand .powered-by,
+    .page-footer .footer-brand .hosted-by {
+        display: flex;
+        align-items: center;
+        gap: 0.1rem;
+        margin-top: 0.6rem;
+        font-size: 0.85rem;
+        color: var(--color-text-light);
+    }
+    .page-footer .footer-brand .powered-by span:first-child,
+    .page-footer .footer-brand .hosted-by span:first-child {
+        min-width: 75px;
+    }
+    .page-footer .footer-brand .powered-by img,
+    .page-footer .footer-brand .hosted-by img {
+        height: 1.5rem;
+        width: auto;
+    }
+    .page-footer .footer-brand .powered-by a,
+    .page-footer .footer-brand .hosted-by a,
+    .page-footer .footer-brand .build-version a {
+        color: var(--color-text-light);
+    }
+    .page-footer .footer-brand .powered-by a,
+    .page-footer .footer-brand .hosted-by a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    .page-footer .footer-brand .powered-by a:hover,
+    .page-footer .footer-brand .hosted-by a:hover,
+    .page-footer .footer-brand .build-version a:hover {
+        color: var(--color-primary);
+    }
+    .page-footer .footer-brand .build-version {
+        margin-top: 0.6rem;
+        font-size: 0.8rem;
+        color: var(--color-text-light);
+    }
+    .page-footer .footer-col b {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--color-text);
+    }
+    .page-footer .footer-col ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    .page-footer .footer-col li {
+        margin: 0.3rem 0;
+    }
+    .page-footer .footer-col a {
+        color: var(--color-text-light);
+    }
+    .page-footer .footer-col a:hover {
+        color: var(--color-primary);
+    }
+    .page-footer .footer-bottom {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1rem;
+        border-top: 1px solid var(--color-secondary);
+        font-size: 0.85rem;
+        color: var(--color-text-light);
+    }
+    @media (max-width: 767px) {
+        .page-footer .footer-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+        .page-footer .footer-brand {
+            grid-column: 1 / -1;
+        }
+    }
+    @media (max-width: 480px) {
+        .page-footer .footer-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<footer class="page-footer" role="group" aria-label="{{ctx.Locale.Tr "aria.footer"}}">
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <a class="brand-link" href="{{AppSubUrl}}/">
+                <img src="{{AssetUrlPrefix}}/img/logo.svg" alt="Gitlgbt logo" loading="lazy">
+                <span>Gitlgbt</span>
+            </a>
+
+            <div class="powered-by">
+                <span>Powered by</span>
+                <a target="_blank" rel="noopener noreferrer" href="https://forgejo.org" aria-label="Forgejo">
+                    <img src="{{AssetUrlPrefix}}/img/forgejo-wordmark.svg" alt="Forgejo wordmark" loading="lazy">
+                </a>
+            </div>
+
+            <div class="hosted-by">
+                <span>Hosted by</span>
+                <a target="_blank" rel="noopener noreferrer" href="https://Fryrvo.com" aria-label="Fryrvo">
+                    <img src="{{AssetUrlPrefix}}/img/Fryrvopride.svg" alt="Fryrvo logo" loading="lazy">
+                </a>
+            </div>
+
+            <div class="build-version">
+                {{ctx.Locale.Tr "version"}}: {{if .IsAdmin}}<a href="{{AppSubUrl}}/admin/config">{{AppVer}}</a>{{else}}<a target="_blank" rel="noopener noreferrer" href="https://github.com/gitlgbt/forgejo/releases/tag/v{{AppVerNoMetadata}}">{{AppVerNoMetadata}}</a>{{end}}
+            </div>
+        </div>
+
+        <div class="footer-col">
+            <b>Explore</b>
+            <ul>
+                <li><a href="{{AppSubUrl}}/explore/repos">Repositories</a></li>
+                <li><a href="{{AppSubUrl}}/explore/users">Users</a></li>
+                <li><a href="{{AppSubUrl}}/explore/organizations">Organizations</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <b>Help</b>
+            <ul>
+                <li><a target="_blank" rel="noopener noreferrer" href="https://forgejo.org/docs/latest/">Documentation</a></li>
+                {{if .EnableSwagger}}
+                    <li><a href="{{AppSubUrl}}/api/swagger">API</a></li>
+                {{end}}
+                <li><a target="_blank" rel="noopener noreferrer" href="https://github.com/gitlgbt/forgejo">Source Code</a></li>
+                <li><a target="_blank" rel="noopener noreferrer" href="https://github.com/gitlgbt/theme">Theme Source</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <b>Legal</b>
+            <ul>
+                <li><a href="{{AppSubUrl}}/gitlgbt/terms">Terms</a></li>
+                <li><a href="{{AppSubUrl}}/gitlgbt/privacy">Privacy Policy</a></li>
+                <li><a href="{{AssetUrlPrefix}}/licenses.txt">{{ctx.Locale.Tr "licenses"}}</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="footer-language-switch">
+            <div class="ui language bottom floating slide up dropdown link item button">
+                {{svg "octicon-globe"}}
+                <div class="text">{{ctx.Locale.LangName}}</div>
+                <div class="menu language-menu">
+                    {{range .AllLangs}}
+                        <a lang="{{.Lang}}" data-url="{{AppSubUrl}}/?lang={{.Lang}}" class="item {{if eq ctx.Locale.Lang .Lang}}active selected{{end}}">{{.Name}}</a>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tw-hidden">
+        {{if and .TemplateLoadTimes ShowFooterTemplateLoadTime}}
+            {{ctx.Locale.Tr "page"}}: {{LoadTimes .PageStartTime}}<br>
+            {{ctx.Locale.Tr "template"}}{{if .TemplateName}} {{.TemplateName}}{{end}}: {{call .TemplateLoadTimes}}
+        {{end}}
+    </div>
+</footer>
