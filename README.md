@@ -1,8 +1,11 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/gitlgbt/forgejo/refs/heads/main/assets/logo.svg" alt="git.lgbt Logo" width="192" />
+  <img src="https://git.lgbt/gitlgbt/branding/raw/branch/main/svg/gitlgbttheme.svg" alt="gitlgbt theme logo" width="192" />
   <h1>gitlgbt/Theme</h1>
   <p><strong>Theme and page Source code for <a href="https://git.lgbt">git.lgbt</a></strong></p>
 </div>
+
+# theme 
+this repo contain custom layout and frontend customization for git.lgbt
 
 ## Contributing
 
