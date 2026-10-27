@@ -1,0 +1,81 @@
+<div class="ui container tw-flex tw-gap-x-4">
+	{{ctx.AvatarUtils.Avatar .Org 100 "org-avatar"}}
+	<div id="org-info" class="tw-flex tw-flex-col">
+		<div class="org-header tw-flex">
+			<div class="org-title">
+				<h1>{{.Org.DisplayName}}</h1>
+				<span class="org-visibility">
+					{{if .Org.Visibility.IsLimited}}<span class="ui large horizontal label">{{ctx.Locale.Tr "org.settings.visibility.limited_shortname"}}</span>{{end}}
+					{{if .Org.Visibility.IsPrivate}}<span class="ui large horizontal label">{{ctx.Locale.Tr "org.settings.visibility.private_shortname"}}</span>{{end}}
+				</span>
+			</div>
+			<span class="button-sequence tw-items-center tw-ml-auto tw-whitespace-nowrap">
+				{{if .Funding}}
+					{{template "shared/donation_button" .}}
+				{{end}}
+				{{if .IsSigned}}
+					{{template "org/follow_unfollow" .}}
+				{{end}}
+				{{if .IsOrganizationMember}}
+					<a class="secondary button" href="{{.OrgLink}}/dashboard">{{ctx.Locale.Tr "org.open_dashboard"}}</a>
+				{{end}}
+				{{$moderationEntryNeeded := and .IsModerationEnabled .IsSigned (not .IsOrganizationOwner)}}
+				{{if or .EnableFeed $moderationEntryNeeded}}
+					<details class="dropdown dir-rtl">
+						<summary class="border" data-tooltip-content="{{ctx.Locale.Tr "profile.actions.tooltip"}}">
+							{{svg "octicon-kebab-horizontal" 20}}
+						</summary>
+						<div class="content">
+							<ul>
+								{{if .EnableFeed}}
+									<li>
+										<a href="{{.Org.HomeLink}}.rss">{{svg "octicon-rss"}}{{ctx.Locale.Tr "rss_feed"}}</a>
+									</li>
+									<li>
+										<a href="{{.Org.HomeLink}}.atom">{{svg "octicon-rss"}}{{ctx.Locale.Tr "feed.atom.link"}}</a>
+									</li>
+								{{end}}
+								{{if $moderationEntryNeeded}}
+									<li>
+										<a class="orange text" href="{{AppSubUrl}}/report_abuse?type=org&id={{$.Org.ID}}">{{svg "octicon-stop"}}{{ctx.Locale.Tr "moderation.report_abuse"}}</a>
+									</li>
+								{{end}}
+							</ul>
+						</div>
+					</details>
+				{{end}}
+			</span>
+		</div>
+		{{if .RenderedDescription}}<div class="render-content markup">{{.RenderedDescription}}</div>{{end}}
+		<div class="text light meta tw-mt-1">
+			{{if .Org.Website}}
+			<div id="org-verified" class="org-verified flex-text-block tw-hidden" data-website="{{.Org.Website}}" data-org="{{.Org.Name}}">
+				<details class="dropdown">
+					<summary class="org-verified-pill">
+						<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.5 8.4l3 3 6-6.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+						<span>{{ctx.Locale.Tr "org.domain_verify.badge"}}</span>
+					</summary>
+					<div class="content org-verified-card">
+						<div class="org-verified-body">
+						<p>{{ctx.Locale.Tr "org.domain_verify.badge_description" .Org.Name}}</p>
+						<ul class="org-verified-domains"><li class="verify-domain"></li></ul>
+						<a href="https://docs.git.lgbt/verifyorg" target="_blank" rel="noopener noreferrer">{{ctx.Locale.Tr "org.domain_verify.learn_more"}}</a>
+						</div>
+					</div>
+				</details>
+			</div>
+			{{end}}
+			{{if .Org.Location}}<div class="flex-text-block">{{svg "octicon-location"}} <span>{{.Org.Location}}</span></div>{{end}}
+			{{if .Org.Website}}<div class="flex-text-block">{{svg "octicon-link"}} <a class="muted" target="_blank" rel="noopener noreferrer me" href="{{.Org.Website}}">{{.Org.Website}}</a></div>{{end}}
+			{{if .IsSigned}}
+				{{if .Org.Email}}<div class="flex-text-block">{{svg "octicon-mail"}} <a class="muted" href="mailto:{{.Org.Email}}">{{.Org.Email}}</a></div>{{end}}
+			{{end}}
+		</div>
+	</div>
+</div>
+
+{{if .Funding}}
+	{{template "shared/funding" .}}
+{{end}}
+
+{{template "org/menu" .}}

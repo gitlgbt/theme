@@ -1,0 +1,122 @@
+{{template "org/settings/layout_head" (dict "ctxData" . "pageClass" "organization settings options")}}
+			<div class="org-setting-content">
+				<h4 class="ui top attached header">
+					{{ctx.Locale.Tr "org.settings.options"}}
+				</h4>
+				<div class="ui attached segment">
+					<form class="ui form" action="{{.Link}}" method="post">
+						<label {{if .Err_Name}}class="field error"{{end}}>
+							{{ctx.Locale.Tr "org.org_name_holder"}}
+							<input id="org_name" name="name" value="{{.Org.Name}}" data-org-name="{{.Org.Name}}" autofocus required maxlength="40">
+							<span class="help">
+								{{ctx.Locale.Tr "org.settings.change_orgname_prompt"}}
+								{{if gt .CooldownPeriod 0}}
+									{{ctx.Locale.TrN .CooldownPeriod "org.settings.change_orgname_redirect_prompt.with_cooldown.one" "org.settings.change_orgname_redirect_prompt.with_cooldown.few" .CooldownPeriod}}</span>
+								{{else}}
+									{{ctx.Locale.Tr "org.settings.change_orgname_redirect_prompt"}}
+								{{end}}
+							</span>
+						</label>
+						<div class="field {{if .Err_FullName}}error{{end}}">
+							<label for="full_name">{{ctx.Locale.Tr "org.org_full_name_holder"}}</label>
+							<input id="full_name" name="full_name" value="{{.Org.FullName}}" maxlength="100">
+						</div>
+						<div class="field {{if .Err_Email}}error{{end}}">
+							<label for="email">{{ctx.Locale.Tr "org.settings.email"}}</label>
+							<input id="email" name="email" type="email" value="{{.Org.Email}}" maxlength="255">
+						</div>
+						<div class="field {{if .Err_Description}}error{{end}}">
+							<label for="description">{{ctx.Locale.Tr "org.org_desc"}}</label>
+							<textarea id="description" name="description" rows="2" maxlength="255">{{.Org.Description}}</textarea>
+						</div>
+						<div class="field {{if .Err_Website}}error{{end}}">
+							<label for="website">{{ctx.Locale.Tr "org.settings.website"}}</label>
+							<input id="website" name="website" type="url" value="{{.Org.Website}}" maxlength="255" pattern="{{.ValidSiteURLPattern}}">
+							<span class="help">{{ctx.Locale.Tr "form.website.valid_url_schemes" (StringUtils.Join .ValidSiteURLSchemes ", ")}}</span>
+						</div>
+						<div class="field" id="org-domain-verify" data-org="{{.Org.Name}}">
+							<label>{{ctx.Locale.Tr "org.domain_verify.title"}}</label>
+							<div class="help">{{ctx.Locale.Tr "org.domain_verify.help"}}</div>
+							<div class="ui segment tw-mt-2">
+								<p>{{ctx.Locale.Tr "org.domain_verify.add_record"}}</p>
+								<div class="tw-flex tw-flex-col tw-gap-2">
+									<div class="flex-text-block"><span class="text light-2">{{ctx.Locale.Tr "org.domain_verify.record_name"}}</span> <code class="verify-name tw-break-anywhere">{{ctx.Locale.Tr "org.domain_verify.name_placeholder"}}</code> <button type="button" class="btn interact-fg" data-copy=".verify-name" data-tooltip-content="{{ctx.Locale.Tr "copy"}}">{{svg "octicon-copy" 14}}</button></div>
+									<div class="flex-text-block"><span class="text light-2">{{ctx.Locale.Tr "org.domain_verify.record_value"}}</span> <code class="verify-value tw-break-anywhere"></code> <button type="button" class="btn interact-fg" data-copy=".verify-value" data-tooltip-content="{{ctx.Locale.Tr "copy"}}">{{svg "octicon-copy" 14}}</button></div>
+								</div>
+								<div class="tw-mt-3 flex-text-block">
+									<button type="button" class="ui basic small button verify-run">{{ctx.Locale.Tr "org.domain_verify.run"}}</button>
+									<span class="verify-status"></span>
+								</div>
+								<div class="help tw-mt-2">{{ctx.Locale.Tr "org.domain_verify.dns_delay"}}</div>
+							</div>
+						</div>
+						<div class="field">
+							<label for="location">{{ctx.Locale.Tr "org.settings.location"}}</label>
+							<input id="location" name="location"  value="{{.Org.Location}}" maxlength="50">
+						</div>
+
+						<div class="divider"></div>
+						<div class="field" id="visibility_box">
+							<label for="visibility">{{ctx.Locale.Tr "org.settings.visibility"}}</label>
+							<div class="field">
+								<div class="ui radio checkbox">
+									<input class="enable-system-radio" name="visibility" type="radio" value="0" {{if eq .CurrentVisibility 0}}checked{{end}}>
+									<label>{{ctx.Locale.Tr "org.settings.visibility.public"}}</label>
+								</div>
+							</div>
+							<div class="field">
+								<div class="ui radio checkbox">
+									<input class="enable-system-radio" name="visibility" type="radio" value="1" {{if eq .CurrentVisibility 1}}checked{{end}}>
+									<label>{{ctx.Locale.Tr "org.settings.visibility.limited"}}</label>
+								</div>
+							</div>
+							<div class="field">
+								<div class="ui radio checkbox">
+									<input class="enable-system-radio" name="visibility" type="radio" value="2" {{if eq .CurrentVisibility 2}}checked{{end}}>
+									<label>{{ctx.Locale.Tr "org.settings.visibility.private"}}</label>
+								</div>
+							</div>
+						</div>
+
+						<div class="field" id="permission_box">
+							<label>{{ctx.Locale.Tr "org.settings.permission"}}</label>
+							<div class="field">
+								<div class="ui checkbox">
+									<input type="checkbox" name="repo_admin_change_team_access" {{if .RepoAdminChangeTeamAccess}}checked{{end}}>
+									<label>{{ctx.Locale.Tr "org.settings.repoadminchangeteam"}}</label>
+								</div>
+							</div>
+						</div>
+
+						{{if .SignedUser.IsAdmin}}
+						<div class="divider"></div>
+
+						<div class="inline field {{if .Err_MaxRepoCreation}}error{{end}}">
+							<label for="max_repo_creation">{{ctx.Locale.Tr "admin.users.max_repo_creation"}}</label>
+							<input id="max_repo_creation" name="max_repo_creation" type="number" min="-1" value="{{.Org.MaxRepoCreation}}">
+							<p class="help">{{ctx.Locale.Tr "admin.users.max_repo_creation_desc"}}</p>
+						</div>
+						{{end}}
+
+						<div class="field">
+							<button class="ui primary button">{{ctx.Locale.Tr "org.settings.update_settings"}}</button>
+						</div>
+					</form>
+
+					<div class="divider"></div>
+
+					<form class="ui form" action="{{.Link}}/avatar" method="post" enctype="multipart/form-data">
+						<div class="inline field">
+							<label for="new-avatar">{{ctx.Locale.Tr "settings.choose_new_avatar"}}</label>
+							<input id="new-avatar" name="avatar" aria-describedby="new-avatar-description" type="file" accept="image/png,image/jpeg,image/gif,image/webp">
+							<br/><span id="new-avatar-description" class=help>{{ctx.Locale.Tr "avatar.constraints_hint" (ctx.Locale.TrSize .MaxAvatarFileSize) .MaxAvatarWidth .MaxAvatarHeight}}</span>
+						</div>
+
+						<div class="field button-sequence">
+							<button class="primary button">{{ctx.Locale.Tr "settings.update_avatar"}}</button>
+							<button class="danger button link-action" data-url="{{.Link}}/avatar/delete">{{ctx.Locale.Tr "settings.delete_current_avatar"}}</button>
+						</div>
+					</form>
+				</div>
+			</div>
+{{template "org/settings/layout_footer" .}}
