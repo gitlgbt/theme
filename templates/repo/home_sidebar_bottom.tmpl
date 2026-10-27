@@ -129,7 +129,7 @@
 	{{end}}
 
 	{{if and (not .IsEmptyRepo) (.Permission.CanRead $.UnitTypeCode)}}
-		<div id="repo-sidebar-contributors" class="tw-hidden flex-relaxed-list" data-url="{{.RepoLink}}/activity/contributors/data" data-link="{{.RepoLink}}/activity/contributors" data-max="14">
+		<div id="repo-sidebar-contributors" class="tw-hidden flex-relaxed-list" data-url="{{.RepoLink}}/activity/contributors/data" data-api-users="{{AppSubUrl}}/api/v1/users/" data-link="{{.RepoLink}}/activity/contributors" data-max="14">
 			<div class="divider"></div>
 			<div class="repo-home-sidebar-header">
 				<a class="item muted" href="{{.RepoLink}}/activity/contributors">Contributors</a>
@@ -161,6 +161,12 @@
 					img.width = 32; img.height = 32; img.loading = 'lazy';
 					img.alt = el.title;
 					img.src = c.avatar_link;
+					if (c.login) {
+						fetch(root.dataset.apiUsers + encodeURIComponent(c.login), {headers: {'Accept': 'application/json'}, credentials: 'same-origin'})
+							.then(function (r) { return r.ok ? r.json() : null; })
+							.then(function (u) { if (u && u.avatar_url && u.avatar_url !== img.src) img.src = u.avatar_url; })
+							.catch(function () {});
+					}
 					el.appendChild(img);
 					box.appendChild(el);
 				});
