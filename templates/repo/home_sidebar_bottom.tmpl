@@ -1,0 +1,210 @@
+<div class="repo-home-sidebar-bottom flex-relaxed-list">
+	{{if and (not .IsEmptyRepo) (.Permission.CanRead $.UnitTypeReleases)}}
+		<div id="repo-sidebar-releases" class="tw-hidden flex-relaxed-list" data-api="{{AppSubUrl}}/api/v1/repos/{{.Repository.FullName}}/releases">
+			<div class="divider"></div>
+			<div class="repo-home-sidebar-header">
+				<a class="item muted" href="{{.RepoLink}}/releases">{{ctx.Locale.Tr "repo.releases"}}</a>
+				<span class="ui small label releases-count"></span>
+			</div>
+			<div>
+				<div class="flex-text-block">
+					<div>{{svg "octicon-tag"}}</div>
+					<a class="gt-ellipsis muted release-title"><strong></strong></a>
+					<div class="tw-shrink-0 release-label"></div>
+				</div>
+				<div class="tw-ml-[24px] tw-text-12 release-age"></div>
+			</div>
+		</div>
+		<script>
+		(function () {
+			var root = document.getElementById('repo-sidebar-releases');
+			if (!root) return;
+			var api = root.dataset.api;
+			var opts = {headers: {'Accept': 'application/json'}, credentials: 'same-origin'};
+			function ago(iso) {
+				var diff = (new Date(iso).getTime() - Date.now()) / 1000;
+				var units = [['year', 31536000], ['month', 2592000], ['week', 604800], ['day', 86400], ['hour', 3600], ['minute', 60]];
+				var rtf = new Intl.RelativeTimeFormat(document.documentElement.lang || undefined, {numeric: 'auto'});
+				for (var i = 0; i < units.length; i++) {
+					if (Math.abs(diff) >= units[i][1]) return rtf.format(Math.round(diff / units[i][1]), units[i][0]);
+				}
+				return rtf.format(Math.round(diff), 'second');
+			}
+			Promise.all([
+				fetch(api + '?draft=false&limit=1', opts),
+				fetch(api + '/latest', opts)
+			]).then(function (res) {
+				if (!res[0].ok) return null;
+				var count = parseInt(res[0].headers.get('X-Total-Count'), 10) || 0;
+				return Promise.all([res[0].json(), res[1].ok ? res[1].json() : null]).then(function (d) {
+					return {count: count, newest: d[0] && d[0][0], latest: d[1]};
+				});
+			}).then(function (r) {
+				if (!r || !r.newest) return;
+				var rel = r.newest;
+				root.querySelector('.releases-count').textContent = (r.count || 1).toLocaleString();
+				var a = root.querySelector('.release-title');
+				a.href = rel.html_url;
+				var name = rel.name || rel.tag_name;
+				a.title = name;
+				a.querySelector('strong').textContent = name;
+				var label = null;
+				if (rel.prerelease) { label = 'Pre-release'; }
+				else if (r.latest && r.latest.id === rel.id) { label = 'Latest'; }
+				if (label) {
+					var l = document.createElement('span');
+					l.className = 'ui small basic label';
+					l.textContent = label;
+					root.querySelector('.release-label').appendChild(l);
+				}
+				root.querySelector('.release-age').textContent = ago(rel.published_at || rel.created_at);
+				root.classList.remove('tw-hidden');
+			}).catch(function () {});
+		})();
+		</script>
+	{{end}}
+
+	{{if .Permission.CanRead $.UnitTypePackages}}
+		<div id="repo-sidebar-packages" class="tw-hidden flex-relaxed-list" data-api="{{AppSubUrl}}/api/v1/packages/{{.Repository.OwnerName}}" data-repo="{{.Repository.FullName}}">
+			<div class="divider"></div>
+			<div class="repo-home-sidebar-header">
+				<a class="item muted" href="{{.RepoLink}}/packages">{{ctx.Locale.Tr "packages.title"}}</a>
+				<span class="ui small label packages-count"></span>
+			</div>
+			<div class="flex-relaxed-list packages-list"></div>
+			<a class="muted packages-more tw-hidden" href="{{.RepoLink}}/packages"></a>
+		</div>
+		<script>
+		(function () {
+			var root = document.getElementById('repo-sidebar-packages');
+			if (!root) return;
+			var repo = root.dataset.repo.toLowerCase(), max = 3;
+			var opts = {headers: {'Accept': 'application/json'}, credentials: 'same-origin'};
+			async function load() {
+				var mine = [];
+				for (var page = 1; page <= 10; page++) {
+					var r = await fetch(root.dataset.api + '?limit=50&page=' + page, opts);
+					if (!r.ok) break;
+					var list = await r.json();
+					list.forEach(function (p) {
+						if (p.repository && String(p.repository.full_name).toLowerCase() === repo) mine.push(p);
+					});
+					if (list.length < 50) break;
+				}
+				var seen = {}, pkgs = [];
+				mine.forEach(function (p) {
+					var k = p.type + '/' + p.name;
+					if (!seen[k]) { seen[k] = 1; pkgs.push(p); }
+				});
+				if (!pkgs.length) return;
+				root.querySelector('.packages-count').textContent = pkgs.length.toLocaleString();
+				var box = root.querySelector('.packages-list');
+				pkgs.slice(0, max).forEach(function (p) {
+					var row = document.createElement('div');
+					row.className = 'flex-text-block';
+					var a = document.createElement('a');
+					a.className = 'gt-ellipsis muted';
+					a.href = p.html_url;
+					a.title = p.name + ' ' + p.version;
+					var b = document.createElement('strong');
+					b.textContent = p.name;
+					a.appendChild(b);
+					var v = document.createElement('span');
+					v.className = 'text light-2 tw-text-12 tw-shrink-0';
+					v.textContent = p.type + ' ' + p.version;
+					row.appendChild(a);
+					row.appendChild(v);
+					box.appendChild(row);
+				});
+				if (pkgs.length > max) {
+					var more = root.querySelector('.packages-more');
+					more.textContent = '+ ' + (pkgs.length - max).toLocaleString() + ' packages';
+					more.classList.remove('tw-hidden');
+				}
+				root.classList.remove('tw-hidden');
+			}
+			load().catch(function () {});
+		})();
+		</script>
+	{{end}}
+
+	{{if and (not .IsEmptyRepo) (.Permission.CanRead $.UnitTypeCode)}}
+		<div id="repo-sidebar-contributors" class="tw-hidden flex-relaxed-list" data-url="{{.RepoLink}}/activity/contributors/data" data-link="{{.RepoLink}}/activity/contributors" data-max="14">
+			<div class="divider"></div>
+			<div class="repo-home-sidebar-header">
+				<a class="item muted" href="{{.RepoLink}}/activity/contributors">Contributors</a>
+				<span class="ui small label contributors-count"></span>
+			</div>
+			<div class="repo-contributors-avatars"></div>
+			<a class="muted repo-contributors-more tw-hidden" href="{{.RepoLink}}/activity/contributors"></a>
+		</div>
+		<script>
+		(function () {
+			var root = document.getElementById('repo-sidebar-contributors');
+			if (!root) return;
+			var max = parseInt(root.dataset.max, 10) || 14;
+			var tries = 0;
+			function render(data) {
+				var list = Object.keys(data || {}).filter(function (k) { return k !== 'total'; }).map(function (k) { return data[k]; });
+				if (!list.length) return;
+				list.sort(function (a, b) { return b.total_commits - a.total_commits; });
+				var withAccount = list.filter(function (c) { return c.login || c.home_link; });
+				var shown = withAccount.length ? withAccount : list;
+				root.querySelector('.contributors-count').textContent = list.length.toLocaleString();
+				var box = root.querySelector('.repo-contributors-avatars');
+				shown.slice(0, max).forEach(function (c) {
+					var el = document.createElement(c.home_link ? 'a' : 'span');
+					if (c.home_link) el.href = c.home_link;
+					el.title = c.name || c.login || '';
+					var img = document.createElement('img');
+					img.className = 'ui avatar';
+					img.width = 32; img.height = 32; img.loading = 'lazy';
+					img.alt = el.title;
+					img.src = c.avatar_link;
+					el.appendChild(img);
+					box.appendChild(el);
+				});
+				if (list.length > Math.min(max, shown.length)) {
+					var more = root.querySelector('.repo-contributors-more');
+					more.textContent = '+ ' + (list.length - Math.min(max, shown.length)).toLocaleString() + ' contributors';
+					more.classList.remove('tw-hidden');
+				}
+				root.classList.remove('tw-hidden');
+			}
+			function load() {
+				fetch(root.dataset.url, {headers: {'Accept': 'application/json'}, credentials: 'same-origin'}).then(function (r) {
+					if (r.status === 202 && tries++ < 120) { setTimeout(load, 5000); return null; }
+					return r.ok && r.status === 200 ? r.json() : null;
+				}).then(function (d) { if (d) render(d); }).catch(function () {});
+			}
+			load();
+		})();
+		</script>
+	{{end}}
+
+	{{if and (not .IsEmptyRepo) .LanguageStats}}
+		<div class="divider"></div>
+		<div class="repo-home-sidebar-header">
+			Languages
+		</div>
+
+		<div>
+			<div class="language-stats">
+				{{range .LanguageStats}}
+				<div class="bar" style="width: {{.Percentage}}%; background-color: {{.Color}}" data-tooltip-placement="top" data-tooltip-content="{{.Language}}" data-tooltip-follow-cursor="horizontal"></div>
+				{{end}}
+			</div>
+			<div class="language-stats-details">
+				{{range .LanguageStats}}
+				<div class="item">
+					<i class="color-icon" style="background-color: {{.Color}}"></i>
+					<strong class="tw-font-semibold">
+						{{if eq .Language "other"}}{{ctx.Locale.Tr "repo.language_other"}}{{else}}{{.Language}}{{end}}
+					</strong>
+					{{.Percentage}}%
+				</div>
+				{{end}}
+			</div>
+		</div>
+	{{end}}
+</div>

@@ -1,0 +1,67 @@
+<div id="repo-files-table"
+	{{if .HasFilesWithoutLatestCommit}}
+		hx-indicator=".repo-file-cell.notready.message" hx-trigger="load" hx-swap="morph" hx-get="{{.LastCommitLoaderURL}}"
+	{{end}}
+>
+	<div class="repo-file-line repo-file-last-commit">
+		<div class="latest-commit">
+			{{template "repo/latest_commit" .}}
+		</div>
+		<div>{{if and .LatestCommit .LatestCommit.Committer}}{{DateUtils.TimeSince .LatestCommit.Committer.When}}{{end}}</div>
+	</div>
+	{{if .HasParentPath}}
+	<a class="repo-file-line parent-link muted" href="{{.BranchLink}}{{if .ParentPath}}{{PathEscapeSegments .ParentPath}}{{end}}">
+		{{svg "octicon-reply" 16}} ..
+	</a>
+	{{end}}
+	{{range $item := .Files}}
+		<div class="repo-file-item" data-entryname="{{$item.Entry.Name}}" data-ready="{{if $item.Commit}}true{{else}}false{{end}}">
+			{{$entry := $item.Entry}}
+			{{$commit := $item.Commit}}
+			<div class="repo-file-cell name muted-links">
+				{{if $entry.IsSubmodule}}
+					{{$submodule := $item.Submodule}}
+					{{$refURL := $submodule.ResolveUpstreamURL $.Repository.HTMLURL}}
+					{{svg "octicon-file-submodule" 16}}
+					{{if $refURL}}
+						<a class="entry-name muted" href="{{$refURL}}" title="{{$entry.Name}}">{{$entry.Name}}</a>
+						@ <a class="tw-text-primary" href="{{$refURL}}/commit/{{PathEscape $submodule.Commit.String}}">{{ShortSha $submodule.Commit.String}}</a>
+					{{else}}
+						<span class="entry-name" title="{{$entry.Name}}">{{$entry.Name}}</span>
+						@ {{ShortSha $submodule.Commit.String}}
+					{{end}}
+				{{else}}
+					{{if $entry.IsDir}}
+						{{$subJumpablePathName := $entry.GetSubJumpablePathName}}
+						{{svg "octicon-file-directory-fill" 16}}
+						<a class="entry-name muted" href="{{$.TreeLink}}/{{PathEscapeSegments $subJumpablePathName}}" title="{{$subJumpablePathName}}">
+							{{$subJumpablePathFields := StringUtils.Split $subJumpablePathName "/"}}
+							{{$subJumpablePathFieldLast := (Eval (len $subJumpablePathFields) "-" 1)}}
+							{{if eq $subJumpablePathFieldLast 0}}
+								{{$subJumpablePathName}}
+							{{else}}
+								{{$subJumpablePathPrefixes := slice $subJumpablePathFields 0 $subJumpablePathFieldLast}}
+								<span class="text light-2">{{StringUtils.Join $subJumpablePathPrefixes "/"}}</span>/{{index $subJumpablePathFields $subJumpablePathFieldLast}}
+							{{end}}
+						</a>
+					{{else}}
+						{{svg (printf "octicon-%s" (EntryIcon $entry)) 16}}
+						<a class="entry-name muted" href="{{$.TreeLink}}/{{PathEscapeSegments $entry.Name}}" title="{{$entry.Name}}">{{$entry.Name}}</a>
+					{{end}}
+				{{end}}
+			</div>
+			<div class="repo-file-cell message commit-summary {{if not $commit}}notready{{end}}">
+				{{if $commit}}
+					{{$commitLink := printf "%s/commit/%s" $.RepoLink (PathEscape $commit.ID.String)}}
+					{{RenderCommitMessageLinkSubject $.Context $commit.Message $commitLink ($.Repository.ComposeMetas ctx)}}
+				{{else}}
+					&hellip;
+				{{end}}
+			</div>
+			<div class="repo-file-cell age">{{if $commit}}{{DateUtils.TimeSince $commit.Committer.When}}{{end}}</div>
+		</div>
+	{{end}}
+</div>
+{{if and .ReadmeExist (or .IsMarkup .IsPlainText)}}
+	{{template "repo/view_file" .}}
+{{end}}

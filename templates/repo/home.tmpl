@@ -1,0 +1,137 @@
+{{template "base/head" .}}
+<div role="main" aria-label="{{.Title}}" class="page-content repository file list {{if .IsBlame}}blame{{end}}">
+	{{template "repo/header" .}}
+	<div class="ui container {{if .IsBlame}}fluid padded{{end}}">
+		{{template "base/alert" .}}
+		{{if RepoFlagsEnabled}}
+			{{template "custom/repo_flag_banners" .}}
+			{{if .SignedUser.IsAdmin}}
+				{{template "repo/admin_flags" .}}
+			{{end}}
+		{{end}}
+
+		{{if .Repository.IsArchived}}
+			<div class="ui warning message tw-text-center">
+				{{if .Repository.ArchivedUnix.IsZero}}
+					{{ctx.Locale.Tr "repo.archive.title"}}
+				{{else}}
+					{{ctx.Locale.Tr "repo.archive.title_date" (DateUtils.AbsoluteLong .Repository.ArchivedUnix)}}
+				{{end}}
+			</div>
+		{{end}}
+		{{$showSidebar := and (not .TreeNames) (not .HideRepoInfo) (not .IsBlame)}}
+		<div class="{{if $showSidebar}}repo-grid-filelist-sidebar{{else}}repo-grid-filelist-only{{end}}">
+		<div class="repo-home-filelist">
+		{{template "repo/sub_menu" .}}
+		{{$n := len .TreeNames}}
+		{{$l := Eval $n "-" 1}}
+		{{$isHomepage := (eq $n 0)}}
+		<div class="repo-button-row" data-is-homepage="{{$isHomepage}}">
+			<div class="repo-button-row-left">
+				{{template "repo/branch_dropdown" dict "root" .}}
+				{{if and .CanCompareOrPull .IsViewBranch (not .Repository.IsArchived)}}
+					{{$cmpBranch := ""}}
+					{{if ne .Repository.ID .BaseRepo.ID}}
+						{{$cmpBranch = printf "%s/%s:" (.Repository.OwnerName|PathEscape) (.Repository.Name|PathEscape)}}
+					{{end}}
+					{{$cmpBranch = print $cmpBranch (.BranchName|PathEscapeSegments)}}
+					{{$compareLink := printf "%s/compare/%s...%s" .BaseRepo.Link (.BaseRepo.DefaultBranch|PathEscapeSegments) $cmpBranch}}
+					<a id="new-pull-request" class="ui compact basic button" href="{{$compareLink}}"
+						data-tooltip-content="{{if .PullRequestCtx.Allowed}}{{ctx.Locale.Tr "repo.pulls.compare_changes"}}{{else}}{{ctx.Locale.Tr "action.compare_branch"}}{{end}}">
+						{{svg "octicon-git-pull-request"}}
+					</a>
+				{{end}}
+				{{if $isHomepage}}
+					<a href="{{.Repository.Link}}/find/{{.BranchNameSubURL}}" class="ui compact basic button">{{ctx.Locale.Tr "repo.find_file.go_to_file"}}</a>
+				{{end}}
+
+				{{if and .CanWriteCode .IsViewBranch (not .Repository.IsMirror) (not .Repository.IsArchived) (not .IsViewFile)}}
+					<button class="ui dropdown basic compact jump button tw-mr-1"{{if not .Repository.CanEnableEditor}} disabled{{end}}>
+						{{ctx.Locale.Tr "file_editor.add_file"}}
+						{{svg "octicon-triangle-down" 14 "dropdown icon"}}
+						<div class="menu">
+							<a class="item" href="{{.RepoLink}}/_new/{{.BranchName | PathEscapeSegments}}/{{.TreePath | PathEscapeSegments}}">
+								{{ctx.Locale.Tr "file_editor.new_file"}}
+							</a>
+							{{if .RepositoryUploadEnabled}}
+							<a class="item" href="{{.RepoLink}}/_upload/{{.BranchName | PathEscapeSegments}}/{{.TreePath | PathEscapeSegments}}">
+								{{ctx.Locale.Tr "file_editor.upload_file"}}
+							</a>
+							{{end}}
+							<a class="item" href="{{.RepoLink}}/_diffpatch/{{.BranchName | PathEscapeSegments}}/{{.TreePath | PathEscapeSegments}}">
+								{{ctx.Locale.Tr "repo.editor.patch"}}
+							</a>
+						</div>
+					</button>
+				{{end}}
+
+				{{if and $isHomepage (.Repository.IsTemplate)}}
+					<a role="button" class="ui primary compact button" href="{{AppSubUrl}}/repo/create?template_id={{.Repository.ID}}">
+						{{ctx.Locale.Tr "repo.use_template"}}
+					</a>
+				{{end}}
+				{{template "repo/filepath" .}}
+			</div>
+			<div class="repo-button-row-right max-[390px]:tw-w-full">
+				{{if $isHomepage}}
+					<div class="clone-panel ui action tiny input max-[390px]:tw-w-full">
+						{{template "repo/clone_buttons" .}}
+						<button class="ui small jump dropdown icon button" data-tooltip-content="{{ctx.Locale.Tr "repo.more_operations"}}">
+							{{svg "octicon-kebab-horizontal"}}
+							<div class="menu">
+								{{if not $.DisableDownloadSourceArchives}}
+									<a class="item archive-link" href="{{$.RepoLink}}/archive/{{PathEscapeSegments $.RefName}}.zip" rel="nofollow">{{svg "octicon-file-zip" 16 "tw-mr-2"}}{{ctx.Locale.Tr "repo.download_zip"}}</a>
+									<a class="item archive-link" href="{{$.RepoLink}}/archive/{{PathEscapeSegments $.RefName}}.tar.gz" rel="nofollow">{{svg "octicon-file-zip" 16 "tw-mr-2"}}{{ctx.Locale.Tr "repo.download_tar"}}</a>
+									<a class="item archive-link" href="{{$.RepoLink}}/archive/{{PathEscapeSegments $.RefName}}.bundle" rel="nofollow">{{svg "octicon-package" 16 "tw-mr-2"}}{{ctx.Locale.Tr "repo.download_bundle"}}</a>
+								{{end}}
+								{{if .CitationFile}}
+									<a class="item citation-link" href="{{$.RepoLink}}/src/branch/{{$.BranchName}}/{{$.CitationFile}}">{{svg "octicon-cross-reference" 16 "tw-mr-2"}}{{ctx.Locale.Tr "repo.cite_this_repo"}}</a>
+								{{end}}
+								{{range .OpenWithEditorApps}}
+									<a class="item js-clone-url-editor" data-href-template="{{.OpenURL}}">{{.IconHTML}}{{ctx.Locale.Tr "repo.open_with_editor" .DisplayName}}</a>
+								{{end}}
+							</div>
+						</button>
+						{{template "repo/clone_script" .}}
+					</div>
+				{{end}}
+				{{if and (not $isHomepage) (not .IsViewFile) (not .IsBlame)}}
+					<div class="button-sequence folder-actions">
+						<a class="ui button" href="{{.RepoLink}}/commits/{{.BranchNameSubURL}}/{{.TreePath | PathEscapeSegments}}">
+							{{svg "octicon-history" 16 "tw-mr-2"}}{{ctx.Locale.Tr "repo.file_history"}}
+						</a>
+						{{if not $.DisableDownloadSourceArchives}}
+							<button class="ui jump dropdown icon button" data-tooltip-content="{{ctx.Locale.Tr "repo.more_operations"}}">
+								{{svg "octicon-kebab-horizontal"}}
+								<div class="menu">
+									<a class="item archive-link" href="{{$.RepoLink}}/archive/{{PathEscapeSegments (printf "%s:%s" $.RefName .TreePath)}}.zip" rel="nofollow" type="application/zip">{{svg "octicon-file-zip" 16 "tw-mr-2"}}{{ctx.Locale.Tr "repo.download_zip"}}</a>
+									<a class="item archive-link" href="{{$.RepoLink}}/archive/{{PathEscapeSegments (printf "%s:%s" $.RefName .TreePath)}}.tar.gz" rel="nofollow" type="application/gzip">{{svg "octicon-file-zip" 16 "tw-mr-2"}}{{ctx.Locale.Tr "repo.download_tar"}}</a>
+								</div>
+							</button>
+						{{end}}
+					</div>
+				{{end}}
+			</div>
+		</div>
+
+		{{if (not .Repository.IsArchived)}}
+			{{template "repo/code/recently_pushed_new_branches" .}}
+			{{template "repo/code/fork_sync_message" .}}
+		{{end}}
+
+		{{if .IsViewFile}}
+			{{template "repo/view_file" .}}
+		{{else if .IsBlame}}
+			{{template "repo/blame" .}}
+		{{else}}
+			{{template "repo/view_list" .}}
+		{{end}}
+		</div>
+		{{if $showSidebar}}
+			{{template "repo/home_sidebar_top" .}}
+			{{template "repo/home_sidebar_bottom" .}}
+		{{end}}
+		</div>
+	</div>
+</div>
+{{template "base/footer" .}}

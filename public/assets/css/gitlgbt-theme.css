@@ -1,0 +1,401 @@
+.repo-button-row {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+
+.repo-button-row-left,
+.repo-button-row-right {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.repo-button-row-right {
+  justify-content: flex-end;
+}
+
+.repo-button-row[data-is-homepage="false"] .repo-button-row-right {
+  flex-grow: 0;
+}
+
+.repo-button-row .button {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.repo-button-row-left > form .ui.input,
+.repo-button-row-left > form .combo-box {
+  margin: 0;
+}
+
+@media (max-width: 991px) {
+  .repository:not(.wiki) .repo-button-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 600px) {
+  .repo-button-row-left {
+    flex-wrap: wrap;
+  }
+}
+
+.repo-header {
+  gap: 0.5rem;
+  margin-bottom: 4px;
+}
+
+.repo-header .flex-item-main {
+  flex: 0;
+  flex-basis: unset;
+}
+
+@media (max-width: 767.98px) {
+  .repo-buttons .ui.button,
+  .repo-buttons .ui.label {
+    padding-left: 8px;
+    padding-right: 8px;
+    margin: 0;
+  }
+}
+
+.repository .repo-description {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.repository .repository-summary .repository-menu {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  overflow: hidden;
+}
+
+.repository .repository-summary .item {
+  padding: 0 0.5em;
+  border-radius: 0;
+}
+
+.repository .repository-summary .item.active {
+  background: var(--color-secondary);
+  font-weight: inherit;
+}
+
+@media (max-width: 767.98px) {
+  .repository .repository-summary .repository-menu {
+    flex-wrap: wrap;
+  }
+  .repository .repository-summary .item {
+    flex: 1 1 40%;
+  }
+}
+
+#language-stats stats-bar {
+  --stats-bar-height: 10px;
+  gap: 2px;
+  border-radius: 0 0 3px 3px;
+  overflow: hidden;
+}
+
+#repo-files-table thead th {
+  font-weight: var(--font-weight-normal);
+}
+
+#repo-files-table thead tr.commit-list th {
+  border-bottom: 1px solid var(--color-secondary);
+}
+
+.repository.file.list #repo-files-table tr:hover {
+  background-color: var(--color-hover);
+}
+
+.repo-grid-filelist-sidebar {
+  display: grid;
+  grid-template-columns: auto 280px;
+  grid-template-rows: auto auto 1fr;
+  gap: var(--page-spacing, 16px);
+}
+
+.repo-home-filelist {
+  min-width: 0;
+  grid-column: 1;
+  grid-row: 1 / 4;
+}
+
+.repo-home-sidebar-top {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.repo-home-sidebar-bottom {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.repo-home-sidebar-header {
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: 16px;
+  margin-top: 0.5em;
+}
+
+.flex-relaxed-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-block, 0.5rem);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.flex-relaxed-list > .divider {
+  margin: 0;
+}
+
+.repo-home-sidebar-top .repo-description {
+  font-size: 14px;
+  margin-bottom: 0;
+}
+
+.language-stats {
+  display: flex;
+  gap: 2px;
+  padding: 0;
+  height: 10px;
+  white-space: nowrap;
+  border-radius: 5px;
+  overflow: hidden;
+  width: 100%;
+  margin: 5px 0;
+}
+
+.language-stats-details {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.language-stats-details .item {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25em;
+  padding: 0 0.5em;
+  text-decoration: none;
+}
+
+@media (max-width: 767.98px) {
+  .repo-grid-filelist-sidebar {
+    grid-template-columns: 100%;
+    grid-template-rows: auto auto auto;
+  }
+  .repo-home-filelist {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .repo-home-sidebar-top {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .repo-home-sidebar-bottom {
+    grid-column: 1;
+    grid-row: 3;
+  }
+}
+
+.repo-home-sidebar-top a:hover,
+.repo-home-sidebar-bottom a:hover {
+  text-decoration-line: none;
+}
+
+/*file*/
+#repo-files-table {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2fr 3fr auto;
+  border: 1px solid var(--color-secondary);
+  background: var(--color-box-body);
+  border-radius: var(--border-radius);
+  margin: 10px 0;
+}
+
+@media (max-width: 767.98px) {
+  #repo-files-table {
+    grid-template-columns: auto 1fr auto;
+  }
+}
+
+#repo-files-table .repo-file-item {
+  display: contents;
+}
+
+#repo-files-table .repo-file-item:hover > .repo-file-cell,
+#repo-files-table .parent-link:hover {
+  background: var(--color-hover);
+}
+
+#repo-files-table .repo-file-line,
+#repo-files-table .repo-file-cell {
+  border-top: 1px solid var(--color-secondary);
+  padding: 8px 10px;
+}
+
+#repo-files-table .repo-file-line:first-child {
+  border-top: none;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+#repo-files-table .repo-file-item:last-child .repo-file-cell:first-child {
+  border-bottom-left-radius: calc(var(--border-radius) - 1px);
+}
+
+#repo-files-table .repo-file-item:last-child .repo-file-cell:last-child {
+  border-bottom-right-radius: calc(var(--border-radius) - 1px);
+}
+
+#repo-files-table .repo-file-line {
+  grid-column: 1 / span 3;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+#repo-files-table .repo-file-last-commit {
+  min-width: 0;
+  background: var(--color-box-header);
+}
+
+#repo-files-table .repo-file-last-commit .latest-commit {
+  flex: 1;
+  min-width: 0;
+}
+
+#repo-files-table .repo-file-cell.name {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  overflow: hidden;
+}
+
+#repo-files-table .repo-file-cell.name > a,
+#repo-files-table .repo-file-cell.name > span {
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#repo-files-table .repo-file-cell.name .entry-name {
+  flex-shrink: 1;
+  min-width: 1ch;
+}
+
+@media (max-width: 767.98px) {
+  #repo-files-table .repo-file-cell.name {
+    max-width: 35vw;
+  }
+}
+
+#repo-files-table .repo-file-cell.message {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-text-light-1);
+}
+
+#repo-files-table .repo-file-cell.age {
+  text-align: right;
+  white-space: nowrap;
+  color: var(--color-text-light-1);
+}
+
+#repo-files-table .svg.octicon-file-directory-fill,
+#repo-files-table .svg.octicon-file-submodule {
+  color: var(--color-primary);
+}
+
+#repo-files-table .svg.octicon-file,
+#repo-files-table .svg.octicon-file-symlink-file,
+#repo-files-table .svg.octicon-file-directory-symlink {
+  color: var(--color-text-light-2);
+}
+
+/*contributors gird*/
+.repo-contributors-avatars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.repo-contributors-avatars a,
+.repo-contributors-avatars span {
+  display: inline-flex;
+}
+
+.repo-contributors-avatars img.ui.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin: 0;
+}
+
+.repo-home-sidebar-header .label {
+  margin-left: 0.25em;
+}
+
+/*org verify badge part*/
+.org-verified details.dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+.org-verified-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  padding: 0 8px;
+  height: 20px;
+  border: 1px solid var(--color-primary);
+  border-radius: 2em;
+  color: var(--color-primary);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.org-verified-pill svg {
+  width: 11px;
+  height: 11px;
+}
+
+.org-verified-pill::-webkit-details-marker {
+  display: none;
+}
+
+.org-verified-pill:hover {
+  background: var(--color-hover);
+}
+
+.org-verified-card {
+  min-width: 18rem;
+  max-width: 24rem;
+  padding: 12px 16px;
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.org-verified-card p {
+  margin: 0 0 8px;
+}
+
+.org-verified-card ul.org-verified-domains {
+  margin: 0 0 10px;
+  padding-left: 1.2em;
+  list-style: disc;
+}

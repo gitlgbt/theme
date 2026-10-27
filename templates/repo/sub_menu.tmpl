@@ -1,0 +1,19 @@
+{{if and (not .HideRepoInfo) (not .IsBlame)}}
+<div class="ui segments repository-summary tw-mt-1 tw-mb-0">
+	<div class="ui segment repository-menu">
+		{{if and (.Permission.CanRead $.UnitTypeCode) (not .IsEmptyRepo)}}
+			<a class="item muted {{if .PageIsCommits}}active{{end}}" href="{{.RepoLink}}/commits/{{.BranchNameSubURL}}">
+				{{svg "octicon-history"}} {{ctx.Locale.TrPluralString .CommitsCount "counters.n_commits" (printf "<b>%s</b>" (ctx.Locale.PrettyNumber .CommitsCount) | TrustHTML)}}
+			</a>
+			<a class="item muted {{if .PageIsBranches}}active{{end}}" href="{{.RepoLink}}/branches">
+				{{svg "octicon-git-branch"}} {{ctx.Locale.TrPluralString .BranchesCount "counters.n_branches" (printf "<b>%s</b>" (ctx.Locale.PrettyNumber .BranchesCount) | TrustHTML)}}
+			</a>
+			{{if $.Permission.CanRead $.UnitTypeCode}}
+				<a class="item muted {{if .PageIsTagList}}active{{end}}" href="{{.RepoLink}}/tags">
+					{{svg "octicon-tag"}} {{ctx.Locale.TrPluralString .NumTags "counters.n_tags" (printf "<b>%s</b>" (ctx.Locale.PrettyNumber .NumTags) | TrustHTML)}}
+				</a>
+			{{end}}
+		{{end}}
+	</div>
+</div>
+{{end}}
