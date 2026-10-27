@@ -1,3 +1,4 @@
 conf.dev-data
 .dev
 test
+*.code-workspace
