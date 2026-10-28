@@ -1,6 +1,6 @@
 <div class="repo-home-sidebar-bottom flex-relaxed-list">
 	{{if and (not .IsEmptyRepo) (.Permission.CanRead $.UnitTypeReleases)}}
-		<div id="repo-sidebar-releases" class="tw-hidden flex-relaxed-list" data-api="{{AppSubUrl}}/api/v1/repos/{{.Repository.FullName}}/releases">
+		<div id="repo-sidebar-releases" class="tw-hidden flex-relaxed-list" data-api="{{AppSubUrl}}/api/v1/repos/{{.Repository.FullName}}/releases" data-text-latest="{{ctx.Locale.Tr "repo.sidebar.release_latest"}}" data-text-prerelease="{{ctx.Locale.Tr "repo.release.prerelease"}}">
 			<div class="divider"></div>
 			<div class="repo-home-sidebar-header">
 				<a class="item muted" href="{{.RepoLink}}/releases">{{ctx.Locale.Tr "repo.releases"}}</a>
@@ -49,8 +49,8 @@
 				a.title = name;
 				a.querySelector('strong').textContent = name;
 				var label = null;
-				if (rel.prerelease) { label = 'Pre-release'; }
-				else if (r.latest && r.latest.id === rel.id) { label = 'Latest'; }
+				if (rel.prerelease) { label = root.dataset.textPrerelease; }
+				else if (r.latest && r.latest.id === rel.id) { label = root.dataset.textLatest; }
 				if (label) {
 					var l = document.createElement('span');
 					l.className = 'ui small basic label';
@@ -65,7 +65,7 @@
 	{{end}}
 
 	{{if .Permission.CanRead $.UnitTypePackages}}
-		<div id="repo-sidebar-packages" class="tw-hidden flex-relaxed-list" data-api="{{AppSubUrl}}/api/v1/packages/{{.Repository.OwnerName}}" data-repo="{{.Repository.FullName}}">
+		<div id="repo-sidebar-packages" class="tw-hidden flex-relaxed-list" data-api="{{AppSubUrl}}/api/v1/packages/{{.Repository.OwnerName}}" data-repo="{{.Repository.FullName}}" data-text-more="{{ctx.Locale.Tr "repo.sidebar.packages_more" "%s"}}">
 			<div class="divider"></div>
 			<div class="repo-home-sidebar-header">
 				<a class="item muted" href="{{.RepoLink}}/packages">{{ctx.Locale.Tr "packages.title"}}</a>
@@ -91,6 +91,7 @@
 					});
 					if (list.length < 50) break;
 				}
+
 				var seen = {}, pkgs = [];
 				mine.forEach(function (p) {
 					var k = p.type + '/' + p.name;
@@ -118,7 +119,7 @@
 				});
 				if (pkgs.length > max) {
 					var more = root.querySelector('.packages-more');
-					more.textContent = '+ ' + (pkgs.length - max).toLocaleString() + ' packages';
+					more.textContent = root.dataset.textMore.replace('%s', (pkgs.length - max).toLocaleString());
 					more.classList.remove('tw-hidden');
 				}
 				root.classList.remove('tw-hidden');
@@ -129,13 +130,14 @@
 	{{end}}
 
 	{{if and (not .IsEmptyRepo) (.Permission.CanRead $.UnitTypeCode)}}
-		<div id="repo-sidebar-contributors" class="tw-hidden flex-relaxed-list" data-url="{{.RepoLink}}/activity/contributors/data" data-api-users="{{AppSubUrl}}/api/v1/users/" data-link="{{.RepoLink}}/activity/contributors" data-max="14">
+		<div id="repo-sidebar-contributors" class="flex-relaxed-list" data-url="{{.RepoLink}}/activity/contributors/data" data-api-users="{{AppSubUrl}}/api/v1/users/" data-link="{{.RepoLink}}/activity/contributors" data-max="14" data-text-none="{{ctx.Locale.Tr "repo.sidebar.contributors_none"}}" data-text-pending="{{ctx.Locale.Tr "repo.sidebar.contributors_pending"}}" data-text-failed="{{ctx.Locale.Tr "repo.sidebar.contributors_failed"}}" data-text-more="{{ctx.Locale.Tr "repo.sidebar.contributors_more" "%s"}}">
 			<div class="divider"></div>
 			<div class="repo-home-sidebar-header">
-				<a class="item muted" href="{{.RepoLink}}/activity/contributors">Contributors</a>
-				<span class="ui small label contributors-count"></span>
+				<a class="item muted" href="{{.RepoLink}}/activity/contributors">{{ctx.Locale.Tr "repo.sidebar.contributors"}}</a>
+				<span class="ui small label contributors-count tw-hidden"></span>
 			</div>
 			<div class="repo-contributors-avatars"></div>
+			<div class="repo-contributors-status text light-2 tw-text-12">{{ctx.Locale.Tr "repo.sidebar.contributors_loading"}}</div>
 			<a class="muted repo-contributors-more tw-hidden" href="{{.RepoLink}}/activity/contributors"></a>
 		</div>
 		<script>
@@ -146,11 +148,16 @@
 			var tries = 0;
 			function render(data) {
 				var list = Object.keys(data || {}).filter(function (k) { return k !== 'total'; }).map(function (k) { return data[k]; });
-				if (!list.length) return;
+				if (!list.length) { fail(root.dataset.textNone); return; }
 				list.sort(function (a, b) { return b.total_commits - a.total_commits; });
+
 				var withAccount = list.filter(function (c) { return c.login || c.home_link; });
-				var shown = withAccount.length ? withAccount : list;
-				root.querySelector('.contributors-count').textContent = list.length.toLocaleString();
+				var others = list.filter(function (c) { return !(c.login || c.home_link); });
+				var shown = withAccount.concat(others);
+				var cnt = root.querySelector('.contributors-count');
+				cnt.textContent = list.length.toLocaleString();
+				cnt.classList.remove('tw-hidden');
+				root.querySelector('.repo-contributors-status').classList.add('tw-hidden');
 				var box = root.querySelector('.repo-contributors-avatars');
 				shown.slice(0, max).forEach(function (c) {
 					var el = document.createElement(c.home_link ? 'a' : 'span');
@@ -161,6 +168,7 @@
 					img.width = 32; img.height = 32; img.loading = 'lazy';
 					img.alt = el.title;
 					img.src = c.avatar_link;
+
 					if (c.login) {
 						fetch(root.dataset.apiUsers + encodeURIComponent(c.login), {headers: {'Accept': 'application/json'}, credentials: 'same-origin'})
 							.then(function (r) { return r.ok ? r.json() : null; })
@@ -172,16 +180,21 @@
 				});
 				if (list.length > Math.min(max, shown.length)) {
 					var more = root.querySelector('.repo-contributors-more');
-					more.textContent = '+ ' + (list.length - Math.min(max, shown.length)).toLocaleString() + ' contributors';
+					more.textContent = root.dataset.textMore.replace('%s', (list.length - Math.min(max, shown.length)).toLocaleString());
 					more.classList.remove('tw-hidden');
 				}
-				root.classList.remove('tw-hidden');
 			}
+			var statusEl = root.querySelector('.repo-contributors-status');
+			function fail(msg) { statusEl.textContent = msg; }
 			function load() {
 				fetch(root.dataset.url, {headers: {'Accept': 'application/json'}, credentials: 'same-origin'}).then(function (r) {
-					if (r.status === 202 && tries++ < 120) { setTimeout(load, 5000); return null; }
-					return r.ok && r.status === 200 ? r.json() : null;
-				}).then(function (d) { if (d) render(d); }).catch(function () {});
+					if (r.status === 202) {
+						if (tries++ < 120) { setTimeout(load, 5000); } else { fail(root.dataset.textPending); }
+						return null;
+					}
+					if (!r.ok) { fail(root.dataset.textFailed); return null; }
+					return r.json();
+				}).then(function (d) { if (d) render(d); }).catch(function () { fail(root.dataset.textFailed); });
 			}
 			load();
 		})();
@@ -191,7 +204,7 @@
 	{{if and (not .IsEmptyRepo) .LanguageStats}}
 		<div class="divider"></div>
 		<div class="repo-home-sidebar-header">
-			Languages
+			{{ctx.Locale.Tr "repo.sidebar.languages"}}
 		</div>
 
 		<div>
