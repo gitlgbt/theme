@@ -15,5 +15,34 @@
 			{{end}}
 		{{end}}
 	</div>
+
+<!-- add forgejo lang bar back because it look good  -->
+
+	{{if and (.Permission.CanRead $.UnitTypeCode) (not .IsEmptyRepo) .LanguageStats}}
+		<details class="stats" id="language-stats">
+			<summary>
+				<stats-bar>
+					{{range .LanguageStats}}
+						<div class="slice" style="width: {{.Percentage}}%; background-color: {{.Color}}" data-tooltip-placement="top" data-tooltip-content={{.Language}} data-tooltip-follow-cursor="horizontal"></div>
+					{{end}}
+				</stats-bar>
+			</summary>
+			<ul>
+				{{range .LanguageStats}}
+					<li>
+						<i class="color-icon" style="background-color: {{.Color}}"></i>
+						<span>
+							{{if eq .Language "other"}}
+								{{ctx.Locale.Tr "repo.language_other"}}
+							{{else}}
+								{{.Language}}
+							{{end}}
+						</span>
+						{{.Percentage}}%
+					</li>
+				{{end}}
+			</ul>
+		</details>
+	{{end}}
 </div>
 {{end}}

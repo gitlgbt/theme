@@ -21,11 +21,11 @@
 				{{end}}
 				{{$moderationEntryNeeded := and .IsModerationEnabled .IsSigned (not .IsOrganizationOwner)}}
 				{{if or .EnableFeed $moderationEntryNeeded}}
-					<details class="dropdown dir-rtl">
-						<summary class="border" data-tooltip-content="{{ctx.Locale.Tr "profile.actions.tooltip"}}">
+					<div class="dialog-dropdown">
+						<button class="opener border" command="toggle-popover" commandfor="org-actions-dropdown" data-tooltip-content="{{ctx.Locale.Tr "profile.actions.tooltip"}}">
 							{{svg "octicon-kebab-horizontal" 20}}
-						</summary>
-						<div class="content">
+						</button>
+						<dialog popover id="org-actions-dropdown" class="inline-flip">
 							<ul>
 								{{if .EnableFeed}}
 									<li>
@@ -41,8 +41,8 @@
 									</li>
 								{{end}}
 							</ul>
-						</div>
-					</details>
+						</dialog>
+					</div>
 				{{end}}
 			</span>
 		</div>
@@ -50,20 +50,19 @@
 		<div class="text light meta tw-mt-1">
 			{{if .Org.Website}}
 			<div id="org-verified" class="org-verified flex-text-block tw-hidden" data-website="{{.Org.Website}}" data-org="{{.Org.Name}}">
-				<details class="dropdown">
-					<summary class="org-verified-pill">
+				<div class="dialog-dropdown">
+					<button type="button" class="opener org-verified-pill" command="toggle-popover" commandfor="org-verified-popover">
 						<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.5 8.4l3 3 6-6.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
 						<span>{{ctx.Locale.Tr "org.domain_verify.badge"}}</span>
-					</summary>
-					<div class="content org-verified-card">
+					</button>
+					<dialog popover id="org-verified-popover" class="org-verified-card">
 						<div class="org-verified-body">
 						<p>{{ctx.Locale.Tr "org.domain_verify.badge_description" .Org.Name}}</p>
 						<ul class="org-verified-domains"><li class="verify-domain"></li></ul>
-						// well docs is also todo i forgot
 						<a href="https://docs.git.lgbt/verifyorg" target="_blank" rel="noopener noreferrer">{{ctx.Locale.Tr "org.domain_verify.learn_more"}}</a>
 						</div>
-					</div>
-				</details>
+					</dialog>
+				</div>
 			</div>
 			{{end}}
 			{{if .Org.Location}}<div class="flex-text-block">{{svg "octicon-location"}} <span>{{.Org.Location}}</span></div>{{end}}
