@@ -1,6 +1,6 @@
 services:
   forgejo:
-    image: ghcr.io/gitlgbt/forgejo:latest
+    image: git.lgbt/gitlgbt/forgejo:latest
     ports:
       - "3001:3000"
     environment:
