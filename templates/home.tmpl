@@ -1,31 +1,270 @@
+<!-- credit because giving one is nice 
+modify form 
+git.gay homepage
+somepart form https://github.com/themesberg/tailwind-landing-page -->
+
+
 {{template "base/head" .}}
 <style>
-	.gitlgbt-wip {
-		min-height: 55vh;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 1.5rem;
-		padding: 3rem 1.5rem;
-		text-align: center;
+	.gitdotgay-hero {
+		position: relative;
+		padding: 2rem 2rem;
+		padding-block-end: 8rem;
+		margin-block-end: -6rem;
+		background-color: var(--color-nav-bg);
+		font-size: 1.375rem;
+		overflow: hidden;
 	}
-	.gitlgbt-wip img {
-		width: 9rem;
+
+	.gitdotgay-hero .background {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background-size: 150%;
+		background-position: 0% 30%;
+		mix-blend-mode: lighten;
+		filter: blur(6px);
+		opacity: 0.4;
+	}
+
+	@media (prefers-color-scheme: light) {
+		.gitdotgay-hero .background {
+			display: none;
+		}
+	}
+
+	.gitdotgay-hero > * {
+		position: relative;
+	}
+
+	/* another part part */
+	.gitlgbt-hero-inner {
+		display: grid;
+		gap: 2rem;
+		max-width: 75rem;
+		margin-inline: auto;
+		align-items: center;
+	}
+
+	.gitdotgay-hero .text p {
+		font-weight: 500;
+		max-width: 42rem;
+		margin-block-end: 1.5rem;
+		font-size: 1.125rem;
+		color: var(--color-text-light);
+	}
+
+	.gitdotgay-hero .text h1 {
+		font-weight: 800;
+		font-size: 2.25rem;
+		line-height: 1.1;
+		max-width: 42rem;
+		margin-block-end: 1rem;
+	}
+
+	.gitdotgay-hero .img {
+		display: none;
+		justify-content: center;
+	}
+
+	.gitdotgay-hero .img img {
+		width: 100%;
+		max-width: 20rem;
 		height: auto;
 	}
-	.gitlgbt-wip h1 {
-		margin: 0;
-		font-size: clamp(1.6rem, 4vw, 2.25rem);
+
+	.gitdotgay-sellingpoints {
+		position: relative;
+		display: grid;
+		gap: 1rem;
+		width: 100%;
+		max-width: 75rem;
+		margin-inline: auto;
+		justify-content: center;
+		font-size: 1.375rem;
+		padding-inline: 1.5rem;
+	}
+
+	.gitdotgay-sellingpoints .sellingpoint {
+		border-radius: 0.25rem;
+		box-shadow: 0 0 1rem rgb(0 0 0 / 25%);
+		width: 100%;
+		padding: 1.25rem 1.25rem;
+		background-color: var(--color-box-body);
+	}
+
+	.gitdotgay-sellingpoints .sellingpoint h3 {
+		font-size: 1.75rem;
 		font-weight: 700;
+	}
+
+ /* another part */
+	.gitlgbt-about {
+		max-width: 75rem;
+		margin-inline: auto;
+		padding: 4rem 1.5rem 2rem;
+	}
+
+	.gitlgbt-about .text {
+		max-width: 64rem;
+		font-size: 1.125rem;
+		color: var(--color-text-light);
+	}
+
+	.gitlgbt-about h2 {
+		margin-block-end: 1rem;
+		font-size: 2.25rem;
+		font-weight: 700;
+		line-height: 1.2;
 		color: var(--color-text);
 	}
-</style>
 
-<div role="main" aria-label="{{.Title}}" class="page-content home">
-	<div class="gitlgbt-wip">
-		<img src="{{AssetUrlPrefix}}/img/logo.svg" alt="{{AppName}}">
-		<h1>well this is in todo list then</h1>
+	.gitlgbt-about p {
+		margin-block-end: 1rem;
+	}
+
+	.gitlgbt-about a {
+		display: inline-flex;
+		align-items: center;
+		font-weight: 500;
+		color: var(--color-primary);
+	}
+
+	.gitlgbt-about a svg {
+		width: 1.5rem;
+		height: 1.5rem;
+		margin-inline-start: 0.25rem;
+		fill: currentColor;
+	}
+
+	.gitdotgay-who {
+		display: flex;
+		gap: 2rem;
+		padding: 4rem 2rem;
+		align-items: center;
+		justify-content: center;
+		font-size: 1.25rem;
+	}
+
+	.gitdotgay-who img {
+		width: 6rem;
+	}
+
+	@media screen and (max-width: 400px) {
+		.gitdotgay-who {
+			flex-direction: column;
+		}
+	}
+
+	.gitdotgay-who .text {
+		width: 100%;
+		max-width: 20rem;
+	}
+
+	.gitdotgay-who h2 {
+		font-size: 2rem;
+		font-weight: 700;
+		margin-block-end: 0.5rem;
+	}
+
+	@media only screen and (min-width: 767.98px) {
+		.gitdotgay-hero {
+			padding: 3rem 2rem;
+			padding-block-end: 9rem;
+			margin-block-end: -6rem;
+		}
+
+		.gitlgbt-hero-inner {
+			grid-template-columns: 7fr 5fr;
+		}
+
+		.gitdotgay-hero .text h1 {
+			font-size: 3rem;
+		}
+
+		.gitdotgay-hero .text p {
+			font-size: 1.25rem;
+		}
+
+		.gitdotgay-hero .img {
+			display: flex;
+		}
+	}
+
+	@media only screen and (min-width: 900px) {
+		.gitdotgay-sellingpoints {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+</style>
+<main>
+	<div class="gitdotgay-hero">
+		<div class="background" style="background-image: url('{{AppSubUrl}}/assets/img/Fosh.png')"></div>
+		<div class="gitlgbt-hero-inner">
+			<div class="text">
+				<h1>Git hosting</h1>
+				<p>Offering Git hosting, and more coming soon™!.</p>
+			</div>
+			<div class="img">
+				<img src="{{AppSubUrl}}/assets/img/logo.svg" alt="{{AppName}}" />
+			</div>
+		</div>
 	</div>
-</div>
+	<div class="gitdotgay-sellingpoints">
+
+		<div class="sellingpoint">
+			<h3>Privacy</h3>
+			<p>
+				We have no ads, no third party trackers, and no third party cookies.
+				<br>
+				we are not interested in your data 
+			</p>
+		</div>
+		<div class="sellingpoint">
+			<h3>Open Source</h3>
+			<p>
+				git.lgbt is running
+				<a
+					target="_blank"
+					rel="noopener noreferrer"
+					href="{{AppSubUrl}}/gitlgbt/forgejo"
+					>our fork</a
+				>
+				of
+				<a target="_blank" rel="noopener noreferrer" href="https://forgejo.org/"
+					>Forgejo</a
+				>. All
+				<a
+					target="_blank"
+					rel="noopener noreferrer"
+					href="{{AppSubUrl}}/gitlgbt/themes"
+					>our other assets</a
+				>
+				are made available too.
+			</p>
+		</div>
+	</div>
+	<div class="gitlgbt-about">
+		<div class="text">
+			<h2>HI ....</h2>
+			<p>We welcome and support all marginalized identities and are dedicated to fostering a space free from hate, bigotry, and prejudice. with zero tolerance for harassment or discrimination. </p>
+			<a href="#">
+				Learn more
+				<svg viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+			</a>
+		</div>
+	</div>
+	<div class="gitdotgay-who">
+		<img src="{{AppSubUrl}}/assets/img/fryrvofish.svg" alt="" aria-hidden="true" style="width: 6rem; flex-shrink: 0" />
+		<div class="text">
+			<h2>by Fryrvo</h2>
+			<p>
+				git.lgbt is run at 
+				<a href="https://fryrvo.com">Fryrvo Infrastructure</a>
+			</p>
+		</div>
+	</div>
+</main>
 {{template "base/footer" .}}
