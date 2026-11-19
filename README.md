@@ -7,6 +7,11 @@
 # theme 
 this repo contain custom layout and frontend customization for git.lgbt
 
+> [!NOTE]
+> this is only assets and forntend ui customization the rest are  at [gitlgbt/theme](https://git.lgbt/gitlgbt/theme)
+> <br>
+> and are not include here
+
 ## Contributing
 
 clone this repo

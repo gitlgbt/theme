@@ -1,6 +1,6 @@
 services:
   forgejo:
-    image: git.lgbt/gitlgbt/forgejo:latest
+    image: git.lgbt/gitlgbt/forgejo:v17.0.2-dotlgbt
     ports:
       - "3001:3000"
     environment:
