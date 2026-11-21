@@ -1,6 +1,6 @@
 <div class="repo-home-sidebar-top flex-relaxed-list">
 	{{$isCommit := StringUtils.HasPrefix .BranchNameSubURL "commit"}}
-	{{if and (not $isCommit) (or .CodeIndexerDisabled (and (not .TagName) (eq .Repository.DefaultBranch .BranchName)))}}
+	{{if and $.IsSigned (le .Repository.Size 700000000) (not $isCommit) (or .CodeIndexerDisabled (and (not .TagName) (eq .Repository.DefaultBranch .BranchName)))}}
 		<form class="ui form ignore-dirty" action="{{.RepoLink}}/search/{{if .CodeIndexerDisabled}}{{.BranchNameSubURL}}{{end}}" method="get" data-test-tag="codesearch">
 			<input type="hidden" name="path" value="{{.TreePath | PathEscapeSegments}}">
 			{{template "shared/search/combo_multi"
@@ -63,7 +63,7 @@
 		</div>
 
 		<a class="flex-text-block muted" href="{{.RepoLink}}/stars">
-			{{svg "octicon-star"}} <b>{{CountFmt .Repository.NumStars}}</b> Stars
+			{{svg "octicon-star"}} <b>{{CountFmt .Repository.NumStars}}</b> {{ctx.Locale.Tr "repo.sidebar.stars"}}
 		</a>
 		<a class="flex-text-block muted" href="{{.RepoLink}}/watchers">
 			{{svg "octicon-eye"}} <b>{{CountFmt .Repository.NumWatches}}</b> {{ctx.Locale.Tr "repo.watchers"}}

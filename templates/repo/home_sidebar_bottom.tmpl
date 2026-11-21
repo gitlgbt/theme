@@ -1,204 +1,73 @@
 <div class="repo-home-sidebar-bottom flex-relaxed-list">
-	{{if and (not .IsEmptyRepo) (.Permission.CanRead $.UnitTypeReleases)}}
-		<div id="repo-sidebar-releases" class="tw-hidden flex-relaxed-list" data-api="{{AppSubUrl}}/api/v1/repos/{{.Repository.FullName}}/releases" data-text-latest="{{ctx.Locale.Tr "repo.sidebar.release_latest"}}" data-text-prerelease="{{ctx.Locale.Tr "repo.release.prerelease"}}">
-			<div class="divider"></div>
-			<div class="repo-home-sidebar-header">
-				<a class="item muted" href="{{.RepoLink}}/releases">{{ctx.Locale.Tr "repo.releases"}}</a>
-				<span class="ui small label releases-count"></span>
-			</div>
-			<div>
-				<div class="flex-text-block">
-					<div>{{svg "octicon-tag"}}</div>
-					<a class="gt-ellipsis muted release-title"><strong></strong></a>
-					<div class="tw-shrink-0 release-label"></div>
-				</div>
-				<div class="tw-ml-[24px] tw-text-12 release-age"></div>
-			</div>
+
+	{{if and .LatestRelease (.Permission.CanRead $.UnitTypeReleases)}}
+		<div class="divider"></div>
+		<div class="repo-home-sidebar-header">
+			<a class="item muted" href="{{.RepoLink}}/releases">{{ctx.Locale.Tr "repo.releases"}}</a>
+			<span class="ui small label">{{ctx.Locale.PrettyNumber .NumReleases}}</span>
 		</div>
-		<script>
-		(function () {
-			var root = document.getElementById('repo-sidebar-releases');
-			if (!root) return;
-			var api = root.dataset.api;
-			var opts = {headers: {'Accept': 'application/json'}, credentials: 'same-origin'};
-			function ago(iso) {
-				var diff = (new Date(iso).getTime() - Date.now()) / 1000;
-				var units = [['year', 31536000], ['month', 2592000], ['week', 604800], ['day', 86400], ['hour', 3600], ['minute', 60]];
-				var rtf = new Intl.RelativeTimeFormat(document.documentElement.lang || undefined, {numeric: 'auto'});
-				for (var i = 0; i < units.length; i++) {
-					if (Math.abs(diff) >= units[i][1]) return rtf.format(Math.round(diff / units[i][1]), units[i][0]);
-				}
-				return rtf.format(Math.round(diff), 'second');
-			}
-			Promise.all([
-				fetch(api + '?draft=false&limit=1', opts),
-				fetch(api + '/latest', opts)
-			]).then(function (res) {
-				if (!res[0].ok) return null;
-				var count = parseInt(res[0].headers.get('X-Total-Count'), 10) || 0;
-				return Promise.all([res[0].json(), res[1].ok ? res[1].json() : null]).then(function (d) {
-					return {count: count, newest: d[0] && d[0][0], latest: d[1]};
-				});
-			}).then(function (r) {
-				if (!r || !r.newest) return;
-				var rel = r.newest;
-				root.querySelector('.releases-count').textContent = (r.count || 1).toLocaleString();
-				var a = root.querySelector('.release-title');
-				a.href = rel.html_url;
-				var name = rel.name || rel.tag_name;
-				a.title = name;
-				a.querySelector('strong').textContent = name;
-				var label = null;
-				if (rel.prerelease) { label = root.dataset.textPrerelease; }
-				else if (r.latest && r.latest.id === rel.id) { label = root.dataset.textLatest; }
-				if (label) {
-					var l = document.createElement('span');
-					l.className = 'ui small basic label';
-					l.textContent = label;
-					root.querySelector('.release-label').appendChild(l);
-				}
-				root.querySelector('.release-age').textContent = ago(rel.published_at || rel.created_at);
-				root.classList.remove('tw-hidden');
-			}).catch(function () {});
-		})();
-		</script>
+		<div>
+			<div class="flex-text-block">
+				<div>{{svg "octicon-tag"}}</div>
+				<a class="gt-ellipsis muted" href="{{.RepoLink}}/releases/tag/{{PathEscapeSegments .LatestRelease.TagName}}" title="{{if .LatestRelease.Title}}{{.LatestRelease.Title}}{{else}}{{.LatestRelease.TagName}}{{end}}"><strong>{{if .LatestRelease.Title}}{{.LatestRelease.Title}}{{else}}{{.LatestRelease.TagName}}{{end}}</strong></a>
+				<div class="tw-shrink-0">
+					{{if .LatestRelease.IsPrerelease}}
+						<span class="ui small basic label">{{ctx.Locale.Tr "repo.release.prerelease"}}</span>
+					{{else if .LatestReleaseIsLatest}}
+						<span class="ui small basic label">{{ctx.Locale.Tr "repo.sidebar.release_latest"}}</span>
+					{{end}}
+				</div>
+			</div>
+			<div class="tw-ml-[24px] tw-text-12">{{DateUtils.TimeSince .LatestRelease.CreatedUnix}}</div>
+		</div>
 	{{end}}
 
-	{{if .Permission.CanRead $.UnitTypePackages}}
-		<div id="repo-sidebar-packages" class="tw-hidden flex-relaxed-list" data-api="{{AppSubUrl}}/api/v1/packages/{{.Repository.OwnerName}}" data-repo="{{.Repository.FullName}}" data-text-more="{{ctx.Locale.Tr "repo.sidebar.packages_more" "%s"}}">
-			<div class="divider"></div>
-			<div class="repo-home-sidebar-header">
-				<a class="item muted" href="{{.RepoLink}}/packages">{{ctx.Locale.Tr "packages.title"}}</a>
-				<span class="ui small label packages-count"></span>
-			</div>
-			<div class="flex-relaxed-list packages-list"></div>
-			<a class="muted packages-more tw-hidden" href="{{.RepoLink}}/packages"></a>
+	{{if and .SidebarPackages (.Permission.CanRead $.UnitTypePackages)}}
+		<div class="divider"></div>
+		<div class="repo-home-sidebar-header">
+			<a class="item muted" href="{{.RepoLink}}/packages">{{ctx.Locale.Tr "packages.title"}}</a>
+			<span class="ui small label">{{ctx.Locale.PrettyNumber .SidebarPackagesTotal}}</span>
 		</div>
-		<script>
-		(function () {
-			var root = document.getElementById('repo-sidebar-packages');
-			if (!root) return;
-			var repo = root.dataset.repo.toLowerCase(), max = 3;
-			var opts = {headers: {'Accept': 'application/json'}, credentials: 'same-origin'};
-			async function load() {
-				var mine = [];
-				for (var page = 1; page <= 10; page++) {
-					var r = await fetch(root.dataset.api + '?limit=50&page=' + page, opts);
-					if (!r.ok) break;
-					var list = await r.json();
-					list.forEach(function (p) {
-						if (p.repository && String(p.repository.full_name).toLowerCase() === repo) mine.push(p);
-					});
-					if (list.length < 50) break;
-				}
-
-				var seen = {}, pkgs = [];
-				mine.forEach(function (p) {
-					var k = p.type + '/' + p.name;
-					if (!seen[k]) { seen[k] = 1; pkgs.push(p); }
-				});
-				if (!pkgs.length) return;
-				root.querySelector('.packages-count').textContent = pkgs.length.toLocaleString();
-				var box = root.querySelector('.packages-list');
-				pkgs.slice(0, max).forEach(function (p) {
-					var row = document.createElement('div');
-					row.className = 'flex-text-block';
-					var a = document.createElement('a');
-					a.className = 'gt-ellipsis muted';
-					a.href = p.html_url;
-					a.title = p.name + ' ' + p.version;
-					var b = document.createElement('strong');
-					b.textContent = p.name;
-					a.appendChild(b);
-					var v = document.createElement('span');
-					v.className = 'text light-2 tw-text-12 tw-shrink-0';
-					v.textContent = p.type + ' ' + p.version;
-					row.appendChild(a);
-					row.appendChild(v);
-					box.appendChild(row);
-				});
-				if (pkgs.length > max) {
-					var more = root.querySelector('.packages-more');
-					more.textContent = root.dataset.textMore.replace('%s', (pkgs.length - max).toLocaleString());
-					more.classList.remove('tw-hidden');
-				}
-				root.classList.remove('tw-hidden');
-			}
-			load().catch(function () {});
-		})();
-		</script>
+		<div class="flex-relaxed-list">
+			{{range .SidebarPackages}}
+				<div class="flex-text-block">
+					<a class="gt-ellipsis muted" href="{{.Link}}" title="{{.Name}} {{.Version}}"><strong>{{.Name}}</strong></a>
+					<span class="text light-2 tw-text-12 tw-shrink-0">{{.Type}} {{.Version}}</span>
+				</div>
+			{{end}}
+		</div>
+		{{if gt .SidebarPackagesMore 0}}
+			<a class="muted" href="{{.RepoLink}}/packages">{{ctx.Locale.Tr "repo.sidebar.packages_more" (ctx.Locale.PrettyNumber .SidebarPackagesMore)}}</a>
+		{{end}}
 	{{end}}
 
 	{{if and (not .IsEmptyRepo) (.Permission.CanRead $.UnitTypeCode)}}
-		<div id="repo-sidebar-contributors" class="flex-relaxed-list" data-url="{{.RepoLink}}/activity/contributors/data" data-api-users="{{AppSubUrl}}/api/v1/users/" data-link="{{.RepoLink}}/activity/contributors" data-max="14" data-text-none="{{ctx.Locale.Tr "repo.sidebar.contributors_none"}}" data-text-pending="{{ctx.Locale.Tr "repo.sidebar.contributors_pending"}}" data-text-failed="{{ctx.Locale.Tr "repo.sidebar.contributors_failed"}}" data-text-more="{{ctx.Locale.Tr "repo.sidebar.contributors_more" "%s"}}">
+		{{if .SidebarContributors}}
 			<div class="divider"></div>
 			<div class="repo-home-sidebar-header">
 				<a class="item muted" href="{{.RepoLink}}/activity/contributors">{{ctx.Locale.Tr "repo.sidebar.contributors"}}</a>
-				<span class="ui small label contributors-count tw-hidden"></span>
+				<span class="ui small label">{{ctx.Locale.PrettyNumber .SidebarContributorsTotal}}</span>
 			</div>
-			<div class="repo-contributors-avatars"></div>
-			<div class="repo-contributors-status text light-2 tw-text-12">{{ctx.Locale.Tr "repo.sidebar.contributors_loading"}}</div>
-			<a class="muted repo-contributors-more tw-hidden" href="{{.RepoLink}}/activity/contributors"></a>
-		</div>
-		<script>
-		(function () {
-			var root = document.getElementById('repo-sidebar-contributors');
-			if (!root) return;
-			var max = parseInt(root.dataset.max, 10) || 14;
-			var tries = 0;
-			function render(data) {
-				var list = Object.keys(data || {}).filter(function (k) { return k !== 'total'; }).map(function (k) { return data[k]; });
-				if (!list.length) { fail(root.dataset.textNone); return; }
-				list.sort(function (a, b) { return b.total_commits - a.total_commits; });
-
-				var withAccount = list.filter(function (c) { return c.login || c.home_link; });
-				var others = list.filter(function (c) { return !(c.login || c.home_link); });
-				var shown = withAccount.concat(others);
-				var cnt = root.querySelector('.contributors-count');
-				cnt.textContent = list.length.toLocaleString();
-				cnt.classList.remove('tw-hidden');
-				root.querySelector('.repo-contributors-status').classList.add('tw-hidden');
-				var box = root.querySelector('.repo-contributors-avatars');
-				shown.slice(0, max).forEach(function (c) {
-					var el = document.createElement(c.home_link ? 'a' : 'span');
-					if (c.home_link) el.href = c.home_link;
-					el.title = c.name || c.login || '';
-					var img = document.createElement('img');
-					img.className = 'ui avatar';
-					img.width = 32; img.height = 32; img.loading = 'lazy';
-					img.alt = el.title;
-					img.src = c.avatar_link;
-
-					if (c.login) {
-						fetch(root.dataset.apiUsers + encodeURIComponent(c.login), {headers: {'Accept': 'application/json'}, credentials: 'same-origin'})
-							.then(function (r) { return r.ok ? r.json() : null; })
-							.then(function (u) { if (u && u.avatar_url && u.avatar_url !== img.src) img.src = u.avatar_url; })
-							.catch(function () {});
-					}
-					el.appendChild(img);
-					box.appendChild(el);
-				});
-				if (list.length > Math.min(max, shown.length)) {
-					var more = root.querySelector('.repo-contributors-more');
-					more.textContent = root.dataset.textMore.replace('%s', (list.length - Math.min(max, shown.length)).toLocaleString());
-					more.classList.remove('tw-hidden');
-				}
-			}
-			var statusEl = root.querySelector('.repo-contributors-status');
-			function fail(msg) { statusEl.textContent = msg; }
-			function load() {
-				fetch(root.dataset.url, {headers: {'Accept': 'application/json'}, credentials: 'same-origin'}).then(function (r) {
-					if (r.status === 202) {
-						if (tries++ < 120) { setTimeout(load, 5000); } else { fail(root.dataset.textPending); }
-						return null;
-					}
-					if (!r.ok) { fail(root.dataset.textFailed); return null; }
-					return r.json();
-				}).then(function (d) { if (d) render(d); }).catch(function () { fail(root.dataset.textFailed); });
-			}
-			load();
-		})();
-		</script>
+			<div class="repo-contributors-avatars">
+				{{range .SidebarContributors}}
+					{{$label := .Name}}{{if not $label}}{{$label = .Login}}{{end}}
+					{{if .HomeLink}}
+						<a href="{{.HomeLink}}" title="{{$label}}"><img class="ui avatar" src="{{.AvatarLink}}" width="32" height="32" loading="lazy" alt="{{$label}}"></a>
+					{{else}}
+						<span title="{{$label}}"><img class="ui avatar" src="{{.AvatarLink}}" width="32" height="32" loading="lazy" alt="{{$label}}"></span>
+					{{end}}
+				{{end}}
+			</div>
+			{{if gt .SidebarContributorsMore 0}}
+				<a class="muted" href="{{.RepoLink}}/activity/contributors">{{ctx.Locale.Tr "repo.sidebar.contributors_more" (ctx.Locale.PrettyNumber .SidebarContributorsMore)}}</a>
+			{{end}}
+		{{else if .SidebarContributorsPending}}
+			<div class="divider"></div>
+			<div class="repo-home-sidebar-header">
+				<a class="item muted" href="{{.RepoLink}}/activity/contributors">{{ctx.Locale.Tr "repo.sidebar.contributors"}}</a>
+			</div>
+			<div class="text light-2 tw-text-12">{{ctx.Locale.Tr "repo.sidebar.contributors_pending"}}</div>
+		{{end}}
 	{{end}}
 
 	{{if and (not .IsEmptyRepo) .LanguageStats}}
